@@ -1,0 +1,95 @@
+<div class="container" [ngClass]="{'full-width': user.role === 0}">
+    <div class="row clearfix">
+      <div class="mb-1">
+        <h1 class="text-center mt-3 mb-2 p-2 bg-primary text-white rounded shadow">
+            Online Randevu Sistemi Canlı Destek</h1>
+        <div class="btn btn-danger btn-sm mt-1 mb-0" (click)="logout()" style="float: right;">
+            Çıkış Yap
+        </div>
+      </div>
+        <div class="col-lg-12 mt-0">
+            <div class="card chat-app">
+                @if(user.role === 1){
+                    <div id="plist" class="people-list" style="height: calc(100vh - 200px); overflow-y: auto;">
+                        <div class="input-group" style="position: relative;">                      
+                            <input type="text" class="form-control" placeholder="Search..." style="padding-left:35px;">
+                            <i class="fa fa-search" style="position: absolute; top:10px; left: 15px;"></i>
+                        </div>
+                        <ul class="list-unstyled chat-list mt-2 mb-0">
+                          @for(user of users; track user.id){
+                            <li class="clearfix d-flex align-items-center" [ngClass]="selectedUserId == user.id ? 'active' : ''" (click)="changeUser(user)">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" class="me-2">
+                                    <circle cx="12" cy="8" r="5" fill="#ccc"/>
+                                    <path d="M21,21v-2c0-3.87-3.13-7-7-7H10c-3.87,0-7,3.13-7,7v2" fill="#ccc"/>
+                                </svg>
+                                <div class="about">
+                                    <div class="name">{{user.name}}</div>
+                                    <div class="status"> <i class="fa fa-circle" [ngClass]="user.status === 'online' ? 'online' : 'offline'"></i> {{user.status}} </div>
+                                    <div class="last-activity">{{getTimeSinceLastActivity(user)}}</div>
+                                </div>
+                            </li>
+                          }                      
+                        </ul>
+                    </div>
+                }
+                @if(selectedUserId || user.role === 0){
+                  <div [ngClass]="{'col-12': user.role === 0, 'col-lg-9': user.role === 1}" class="chat">
+                    <div class="chat-header clearfix">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6 d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" class="me-3">
+                                    <circle cx="12" cy="8" r="5" fill="#007bff"/>
+                                    <path d="M21,21v-2c0-3.87-3.13-7-7-7H10c-3.87,0-7,3.13-7,7v2" fill="#007bff"/>
+                                </svg>
+                                <div class="chat-about">
+                                    <h5 class="mb-0 fw-bold">{{selectedUser.name}}</h5>
+                                    <small class="text-muted">
+                                        <i class="fa fa-circle me-1" [ngClass]="selectedUser.status === 'online' ? 'text-success' : 'text-secondary'"></i>
+                                        {{selectedUser.status}}
+                                    </small>
+                                </div>
+                            </div>                         
+                        </div>
+                    </div>
+                    <div #chatHistory class="chat-history" style="height: calc(100vh - 350px); overflow-y: auto;">
+                        @if(waitingForModerator){
+                            <div class="text-center p-3">
+                                <p class="alert alert-info blinking-message">Müşteri temsilcimiz kısa bir süre sonra bağlanacaktır. Lütfen bekleyiniz.</p>
+                            </div>
+                        }
+                        <ul class="m-b-0 list-unstyled">
+                          @for(chat of chats; track chat){
+                            @if(selectedUserId != chat.userId){
+                              <li class="clearfix mb-3">
+                                <div class="message-data">
+                                    <span class="message-data-time text-muted small">{{chat.date | date:'dd/MM/yyyy HH:mm'}}</span>
+                                </div>
+                                <div class="message other-message rounded p-2" style="background-color: #D3D3D3; color: #000;"> {{chat.message}} </div>                                    
+                              </li>
+                            }@else {
+                              <li class="clearfix d-flex flex-column align-items-end mb-3">
+                                <div class="message-data text-end">
+                                    <span class="message-data-time text-muted small">{{chat.date | date:'dd/MM/yyyy HH:mm'}}</span>                                 
+                                </div>
+                                <div class="message my-message rounded p-2" style="background-color: #4dc247; color: #fff;">{{chat.message}}</div>
+                              </li>
+                            }                        
+                          }
+                        </ul>
+                    </div>
+                    <div class="chat-message clearfix">
+                        <div class="input-group mb-0">
+                            <input [(ngModel)]="message" type="text" class="form-control rounded-pill" placeholder="Enter text here..." [disabled]="waitingForModerator">
+                            <div class="input-group-append ms-2">
+                                <button class="btn btn-primary rounded-pill" (click)="sendMessage()" [disabled]="waitingForModerator">
+                                    <i class="fa fa-send"></i> Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
